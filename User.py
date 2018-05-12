@@ -30,6 +30,13 @@ class User():
             "User-Agent": "Mozilla/5.0"
         }
         self.connection = requests.Session();
+        self.user_id = ""; #用户ID
+        self.gender = ""; #性别
+        self.nickname = ""; #昵称
+        self.avatarUrl = ""; #头像地址
+        self.backgroundUrl = ""; #背景地址
+        self.description = ""; #简介
+        self.signature = ""; #签名
 
 
     #登陆时初始化用户的信息
@@ -53,6 +60,7 @@ class User():
 
 
     #请求用户歌单时候返回简单的一些参数 checked at 2018.5.4
+    #传入info 为dict参数, 应当为User.user_playlist返回值转化而来。
     def brief_playlists(self,info):
         playlists = info["playlist"];
         result = [];
@@ -98,7 +106,7 @@ class User():
         con = self.connection.post(url,data=data,headers=self.Requests_header).json();
 
         #con.encoding = 'UTF-8';
-        #__init_user(con.json());
+        #self.__init_user(con.json());
 
         if con["code"] == 200:
             self.__init_user(con);
