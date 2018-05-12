@@ -8,10 +8,13 @@ if __name__ == "__main__":
 
 
     y = User();
-    phone_num = "";
-    passowrd = "";
-    y.phone_login(phone_num,password);
+    phone_num = "18157438042";
+    password = "netease3082606";
+    res = y.phone_login(phone_num,password);
 
-    url = y.song_url(27876900);
+    re = y.search_info("dice");
 
-    print(url);
+    detail = y.song_detail(21311956)
+    print(res);
+
+    print(detail);

@@ -24,3 +24,6 @@
 
 ### def song_comments(self, music_id, offset=0, total='false', limit=100)
 > 返回固定歌曲的评论，包括热评以及普通评论。
+
+### def recommend_playlist(self)
+> 返回值类型<list>,<list>内参数类型string,返回用户的推荐歌单列表

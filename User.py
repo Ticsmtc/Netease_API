@@ -44,6 +44,14 @@ class User():
         self.signature = info["profile"]["signature"]; #签名
 
         return;
+
+
+
+
+
+
+
+
     #请求用户歌单时候返回简单的一些参数 checked at 2018.5.4
     def brief_playlists(self,info):
         playlists = info["playlist"];
@@ -66,6 +74,13 @@ class User():
             }
             result.append(info);
         return result;
+
+
+
+
+
+
+
 
     #使用手机号码登陆 checked at 2018.5.4
     def phone_login(self,username, password):
@@ -93,6 +108,10 @@ class User():
 
 
 
+
+
+
+
     #用户歌单，包括自己创建的以及收藏的歌单 checked at 2018.5.4
     #List of playlist_ids
     def user_playlist(self,user_id,offset=0,limit=100):
@@ -103,42 +122,40 @@ class User():
             "limit":limit,
             "uid":user_id
         }
-        con = self.connection.get(url,params=text,headers=self.Requests_header).json();
+        con = self.connection.get(url,params=text,headers=self.Requests_header);
 
-        return self.brief_playlists(con);
+        return con;
 
 
     #用户推荐歌单
     #List of song_ids
     def recommend_playlist(self):
         url = 'http://music.163.com/weapi/v1/discovery/recommend/songs?csrf_token=';
-
-        #self.connection.cookies.load();
         csrf = "";
         for cookie in self.connection.cookies:
             if cookie.name == '__csrf':
                 csrf = cookie.value
-
         if csrf == '':
             return [];
-
         url += csrf
-
         text = {
             "offset": 0,
             "total": True,
             "limit": 20,
             "csrf_token":csrf
         }
-
         page = self.connection.post(url,data=Encrypt_Data(text),headers=self.Requests_header);
         results = json.loads(page.text)['recommend']
         song_ids = []
         for result in results:
             song_ids.append(result['id'])
-
-
         return song_ids;
+
+
+
+
+
+
 
     #歌单详情
     #PlayList<class> checked at 2018.5.4
@@ -158,10 +175,13 @@ class User():
             "n" : 1000,
             "offset" : 0
         }
-        con = self.connection.post(url_detail,data=Encrypt_Data(text),headers=self.Requests_header).json();
-        return PlayList(con);
+        con = self.connection.post(url_detail,data=Encrypt_Data(text),headers=self.Requests_header);
+        return con;
 
-    #歌曲的详细信息页面
+
+
+
+    #歌曲的详细信息页面,获取歌词.
     #SongDetail<class>
     def song_detail(self, music_id):
         url = "http://music.163.com/api/song/detail/?id={}&ids=[{}]".format(music_id, music_id);
@@ -179,20 +199,47 @@ class User():
             lyric_detail = con_lyric["lrc"]["lyric"];
         else:
             lyric_detail = "未能找到歌词";
-
-
-
         return [lyric_detail,tlyric_detail];
+
+
+
+
+
+
+
+
 
 
     #歌曲评论的详细
     # Comments<class>
-    def song_comments(self, music_id, offset=0, total='false', limit=100):
-        total="true";
-        url = 'http://music.163.com/api/v1/resource/comments/R_SO_4_{}/?rid=R_SO_4_{}&\offset={}&total={}&limit={}'.format(music_id, music_id, offset, total, limit)
+    # limit 每次返回的评论数量，offset 从前向后多少评论开始取用
+    def song_comments(self, music_id, offset=0, total='true', limit=100):
+        url = 'http://music.163.com/api/v1/resource/comments/R_SO_4_{}?csrf_token='.format(music_id)
 
-        con = self.connection.get(url,headers=self.Requests_header);
-        return con.json();
+        #
+        csrf = "";
+        for cookie in self.connection.cookies:
+            if cookie.name == "__csrf":
+                csrf = cookie.value;
+        #
+        url = url + csrf;
+        text = {
+            "offset" : offset,
+            "total" : total,
+            "limit" : limit,
+            "music_id" : music_id,
+            "csrf_token" : csrf,
+        }
+        con = self.connection.post(url,data=text,headers=self.Requests_header);
+        return con;
+
+
+
+
+
+
+
+
 
 
     #具体歌曲的播放链接
@@ -200,3 +247,26 @@ class User():
     def song_url(self, music_ids, bit_rate=320000):
         #http://music.163.com/song/media/outer/url?id=476592630.mp3
         return "http://music.163.com/song/media/outer/url?id=" + str(music_ids) + ".mp3";
+
+
+
+
+
+
+
+
+
+    #给定关键词搜索信息
+    #post
+    #搜索单曲(1)，歌手(100)，专辑(10)，歌单(1000)，用户(1002) stpye
+    def search_info(self,s,stype=1,offset=0,total="true",limit=60):
+        url = "http://music.163.com/api/search/get"
+        datas = {
+            's': s,
+            'type': stype,
+            'offset': offset,
+            'total': total,
+            'limit': limit
+        }
+        con = self.connection.post(url,headers=self.Requests_header,data=datas);
+        return con;
